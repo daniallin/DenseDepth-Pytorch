@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from models.depth_estimation import build_model
+from models import build_model
 from utils.loss import ssim
 from dataloader import data_loader
 from utils.helper import AverageMeter, DepthNorm, set_random_seed, keras2torch_weights
@@ -16,7 +16,7 @@ from utils.keeper import Keeper
 def main(args):
     log.info("Minion has spawn.")
 
-    model = build_model(args.backbone)
+    model = build_model(args.model_name)
 
     # Training parameters
     optimizer = torch.optim.Adam(model.parameters(), args.lr, weight_decay=args.weight_decay)
@@ -60,6 +60,8 @@ def main(args):
         train_losses = AverageMeter()
 
         for i, (train_image, train_depth) in enumerate(train_loader):
+            # print('train image size: {}'.format(train_image.size()))
+            # print('train depth size: {}'.format(train_depth.size()))
             if args.use_cuda:
                 train_image = train_image.cuda()
                 train_depth = train_depth.cuda()
@@ -68,6 +70,8 @@ def main(args):
 
             # Normalize depth
             depth_n = DepthNorm(train_depth, args.max_depth)
+            # add channel dimension
+            depth_n = depth_n.unsqueeze(1)
 
             train_out = model(train_image)
 
@@ -103,7 +107,7 @@ def main(args):
                 val_depth_n = DepthNorm(val_depth, args.max_depth)
                 val_out = model(val_image)
 
-            if i % 2 == 1:
+            if i % 100 == 1:
                 keeper.save_img(val_image[1], val_depth[1], val_out[1], img_name='val_{}_{}'.format(epoch, i))
 
             val_loss_depth = l1_criterion(val_out, val_depth_n)
@@ -135,11 +139,6 @@ if __name__ == '__main__':
     args.use_cuda = torch.cuda.is_available()
 
     start_time = time.time()
-    str_time = time.strftime('%Y-%m-%d-%H-%M', time.localtime(start_time))
-    run_id = str_time + '-e' + str(args.epochs) + '-bs' + str(args.batch_size) + '-lr' + str(args.lr) + '-' + args.dataset
-    args.save_path = args.save_path + run_id
-    if not os.path.exists(args.save_path):
-        os.makedirs(args.save_path)
 
     keeper = Keeper(args)
     keeper.save_experiment_config()

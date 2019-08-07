@@ -29,7 +29,7 @@ class Decoder(nn.Module):
         self.up2 = UpSample(features//2 + 192, features//4)
         self.up3 = UpSample(features//4 + 96, features//8)
         self.up4 = UpSample(features//8 + 96, features//16)
-
+        self.relu3 = nn.LeakyReLU(0.2)
         self.conv3 = nn.Conv2d(features//16, 1, kernel_size=3, stride=1, padding=1)
 
     def forward(self, features):
@@ -39,7 +39,8 @@ class Decoder(nn.Module):
         x_d2 = self.up2([x_d1, x_block2])
         x_d3 = self.up3([x_d2, x_block1])
         x_d4 = self.up4([x_d3, x_block0])
-        return self.conv3(x_d4)
+        x_d5 = F.interpolate(x_d4, size=(x_d4.size()[2]*2, x_d4.size()[3]*2), mode='bilinear', align_corners=True)
+        return self.conv3(self.relu3(x_d5))
 
 
 class Encoder(nn.Module):

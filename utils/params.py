@@ -18,8 +18,8 @@ def set_params():
     parser.add_argument('--max_depth', type=float, default=1000.0, help='Maximum of input depths')
 
     # model
-    parser.add_argument('--backbone', type=str, default='DenseDepth')
-    parser.add_argument('--pretrained_net', type=str, default=None)
+    parser.add_argument('--model_name', type=str, default='ResDeep', choices=['DenseDepth', 'ResDeep'])
+    parser.add_argument('--pretrained_net', type=str, default='models/pretrained/nyu.h5')
     parser.add_argument('--resume', type=str, default=None, help='Start training from an existing model.')
     parser.add_argument('--save_path', type=str, default='train_results/')
 

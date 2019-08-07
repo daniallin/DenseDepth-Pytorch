@@ -14,7 +14,7 @@ class Keeper(object):
         start_time = time.time()
         str_time = time.strftime('%Y-%m-%d-%H-%M', time.localtime(start_time))
         run_id = str_time + '-e' + str(args.epochs) + '-bs' + str(
-            args.batch_size) + '-lr' + str(args.lr) + '-' + args.name
+            args.batch_size) + '-lr' + str(args.lr) + '-' + args.dataset
 
         self.experiment_dir = os.path.join(self.args.save_path, run_id)
         if not os.path.exists(self.experiment_dir):
@@ -34,13 +34,15 @@ class Keeper(object):
     def save_img(self, input, target, pred, img_name='test.jpg'):
         img_path = os.path.join(self.experiment_dir, 'val_img')
         if self.args.use_cuda:
-            input, target, pred = input.cpu(), target.cpu(), pred.cpu()
+            input, target, pred = input.cpu().numpy(), target.cpu().numpy(), pred.cpu().numpy()
         if not os.path.exists(img_path):
             os.makedirs(img_path)
         img_file = os.path.join(img_path, img_name)
-        plt.scatter(input[:, 0], input[:, 1], label='input', color='b')
-        plt.scatter(target[:, 0], target[:, 1], label='target', color='g')
-        plt.scatter(pred[:, 0], pred[:, 1], label='prediction', color='r')
+        plt.subplot(221)
+        plt.imshow(input)
+        plt.subplot(222)
+        plt.imshow(target)
+        plt.subplot(223)
         plt.savefig(img_file)
         plt.clf()
 

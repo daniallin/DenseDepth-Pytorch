@@ -2,7 +2,6 @@ import numpy as np
 import torch
 import random
 import tensorflow as tf
-import deepdish as dd
 
 
 def DepthNorm(depth, max_depth):

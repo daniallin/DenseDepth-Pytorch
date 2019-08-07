@@ -1,10 +1,10 @@
 import numpy as np
 import pandas as pd
 from PIL import Image
-from torchvision.transforms import Compose, ToPILImage, ToTensor
+from torchvision.transforms import Compose
 import torch.utils.data as data
 
-from dataloader.preprocessing import RandomHorizontalFlip, RandomCropRotate
+from dataloader.preprocessing import RandomHorizontalFlip, RandomSizedCrop, ToTensor
 
 
 class NYU2Dataset(data.Dataset):
@@ -21,8 +21,8 @@ class NYU2Dataset(data.Dataset):
             self.img_names = val_data.iloc[:, 0]
             self.depth_names = val_data.iloc[:, 1]
 
-        self.train_flip = Compose([RandomHorizontalFlip(), RandomCropRotate(angle=45)])
-        self.general_transform = Compose([ToPILImage(), ToTensor()])
+        self.train_flip = Compose([RandomHorizontalFlip(), RandomSizedCrop()])
+        self.general_transform = Compose([ToTensor()])
 
     def __len__(self):
         return len(self.img_names)
@@ -33,10 +33,10 @@ class NYU2Dataset(data.Dataset):
         depth = Image.open(depth_name)
 
         if self.train:
-            img, depth = np.array(img), np.array(depth)[:, :, None]
             img, depth = self.train_flip((img, depth))
 
         img, depth = self.general_transform((img, depth))
+        # img, depth = np.array(img), np.array(depth)[:, :, None]
 
         return img, depth
 
