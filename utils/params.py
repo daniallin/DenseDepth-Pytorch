@@ -16,6 +16,7 @@ def set_params():
     parser.add_argument('--weight_decay', type=float, default=1e-3, help='w-decay (default: 5e-4)')
     parser.add_argument('--min_depth', type=float, default=10.0, help='Minimum of input depths')
     parser.add_argument('--max_depth', type=float, default=1000.0, help='Maximum of input depths')
+    parser.add_argument('--crop_size', type=float, default=(320, 960), help='Maximum of input depths')
 
     # model
     parser.add_argument('--model_name', type=str, default='ResDeep', choices=['DenseDepth', 'ResDeep'])

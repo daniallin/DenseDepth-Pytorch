@@ -2,7 +2,7 @@ import torch
 import torch.nn as nn
 import torch.nn.functional as F
 
-from models import BatchNorm, initial_weight
+from models.resdeep.general import BatchNorm, initial_weight
 
 
 class Decoder(nn.Module):

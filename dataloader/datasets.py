@@ -8,7 +8,7 @@ from dataloader.preprocessing import RandomHorizontalFlip, RandomSizedCrop, ToTe
 
 
 class NYU2Dataset(data.Dataset):
-    def __init__(self, path='data/', train=True):
+    def __init__(self, path='data/', crop_size=(480, 640), train=True):
         self.train = train
         if train:
             train_data = pd.read_csv(path+'nyu2_train.csv', header=None)
@@ -21,7 +21,7 @@ class NYU2Dataset(data.Dataset):
             self.img_names = val_data.iloc[:, 0]
             self.depth_names = val_data.iloc[:, 1]
 
-        self.train_flip = Compose([RandomHorizontalFlip(), RandomSizedCrop()])
+        self.train_flip = Compose([RandomHorizontalFlip(), RandomSizedCrop(crop_size)])
         self.general_transform = Compose([ToTensor()])
 
     def __len__(self):

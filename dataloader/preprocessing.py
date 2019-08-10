@@ -1,8 +1,7 @@
 import random
 import numpy as np
 import torch
-
-import scipy.ndimage as ndimage
+from torchvision.transforms import RandomResizedCrop, Ra
 from PIL import Image
 import torch.nn.functional as F
 
@@ -125,12 +124,12 @@ class Normalize(object):
         self.std = torch.tensor(std)
 
     def __call__(self, sample):
-        image, landmarks= sample
+        image, depth = sample
 
         for t, m, s in zip(image, self.mean, self.std):
             t.sub_(m).div_(s)
 
-        return image, landmarks
+        return image, depth
 
 
 class ToTensor(object):
@@ -195,7 +194,11 @@ class ToTensor(object):
 
 
 class RandomSizedCrop(object):
-    def __init__(self, scale=(0.08, 1.0), ratio=(3. / 4., 4. / 3.), interpolation=Image.BILINEAR):
+    def __init__(self, size, scale=(0.08, 1.0), ratio=(3. / 4., 4. / 3.), interpolation=Image.BILINEAR):
+        if isinstance(size, tuple):
+            self.size = size
+        else:
+            self.size = (size, size)
         self.interpolation = interpolation
         self.scale = scale
         self.ratio = ratio
@@ -213,8 +216,8 @@ class RandomSizedCrop(object):
             tuple: params (i, j, h, w) to be passed to ``crop`` for a random
                 sized crop.
         """
+        area = img.size[0] * img.size[1]
         for attempt in range(10):
-            area = img.size[0] * img.size[1]
             target_area = random.uniform(*scale) * area
             aspect_ratio = random.uniform(*ratio)
 
@@ -238,15 +241,9 @@ class RandomSizedCrop(object):
 
     def __call__(self, sample):
         img, depth = sample
-        # print('size:{}/{}'.format(img.size[0], img.size[1]))
-        ori_size = (img.size[0], img.size[1])
         i, j, h, w = self.get_params(img, self.scale, self.ratio)
-        # will the order of crop and resize influences the results?
         img = img.crop((j, i, j+w, i+h))
-        img = img.resize(ori_size, self.interpolation)
+        img = img.resize(self.size, self.interpolation)
         depth = depth.crop((j, i, j+w, i+h))
-        depth = depth.resize(ori_size, self.interpolation)
+        depth = depth.resize(self.size, self.interpolation)
         return img, depth
-
-
-

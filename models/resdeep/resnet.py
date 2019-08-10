@@ -4,7 +4,7 @@ pytorch->torchvision->models->resnet.py
 """
 import torch.nn as nn
 import torch.utils.model_zoo as model_zoo
-from models import BatchNorm, initial_weight
+from models.resdeep.general import BatchNorm, initial_weight
 
 
 __all__ = ['ResNet', 'resnet18', 'resnet34', 'resnet50', 'resnet101',

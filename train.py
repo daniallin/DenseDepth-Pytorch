@@ -5,7 +5,7 @@ import numpy as np
 import torch
 import torch.nn as nn
 
-from models import build_model
+from models.depth_estimation import build_model
 from utils.loss import ssim
 from dataloader import data_loader
 from utils.helper import AverageMeter, DepthNorm, set_random_seed, keras2torch_weights
@@ -62,6 +62,7 @@ def main(args):
         for i, (train_image, train_depth) in enumerate(train_loader):
             # print('train image size: {}'.format(train_image.size()))
             # print('train depth size: {}'.format(train_depth.size()))
+            print(i)
             if args.use_cuda:
                 train_image = train_image.cuda()
                 train_depth = train_depth.cuda()
@@ -121,6 +122,7 @@ def main(args):
         keeper.save_loss([epoch, val_losses.count, val_losses.avg], 'validation_loss.csv')
 
         if val_losses.avg < best_loss:
+            best_loss = val_losses.avg
             keeper.save_checkpoint({
                 'epoch': epoch,
                 'state_dict': model.state_dict(),
